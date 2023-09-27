@@ -1,0 +1,111 @@
+﻿@page "/"
+@using Car_Rental.Business.Classes
+@using Car_Rental.Common.Interfaces
+@using Car_Rental.Common.Enums
+@inject BookingProcessor bp
+
+<PageTitle>Car Rental</PageTitle>
+
+
+<h1>Car Rental Assignment</h1>
+ 
+ <div class="row">
+     <div class="col-sm-10">
+        <div class="p-0">Vehicles</div>
+        <table class="table border border-dark table-borderless table-sm">
+            <thead>
+                <tr>
+                    <th scope="col">RegNo</th>
+                    <th scope="col">Make</th>
+                    <th scope="col">Odometer</th>
+                    <th scope="col">Cost Km</th>
+                    <th scope="col">Vehicle Type</th>
+                    <th scope="col">$ Day</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var vehicle in bp.GetVehicles())
+                {
+                    <tr>
+                        <th scope="row">@vehicle.RegistrationNumber</th>
+                        <td>@vehicle.Make</td>
+                        <td>@vehicle.Odometer</td>
+                        <td>@vehicle.CostKm</td>
+                        <td>@vehicle.VehicleType</td>
+                        <td>@vehicle.CostDay</td>
+                        <td>
+                            <span class="badge rounded-pill text-bg-@(vehicle.Status.Equals(VehicleStatuses.Available) ? "dark" : "danger")">@vehicle.Status</span>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+     </div>  
+</div> 
+
+<div class="row">
+    <div class="col-sm-10">
+        <div class="p-0">Bookings</div>
+        <table class="table border border-dark table-sm table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">RegNo</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Km Rented</th>
+                    <th scope="col">Km Returned</th>
+                    <th scope="col">Rented</th>
+                    <th scope="col">Returned</th>
+                    <th scope="col">Cost</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var booking in bp.GetBookings())
+                {
+                    <tr>
+                        <th scope="row">@booking.RegistrationNumber</th>
+                        <td>@($"{booking.Customer.LastName} {booking.Customer.FirstName}({booking.Customer.SocialSecurityNumber})")</td>
+                        <td>@booking.KmRented</td>
+                        <td><input type="number" class="form-control p-0 border-0" @bind=booking.KmReturned min="@booking.KmRented" disabled="@booking.Status.Equals("Closed")"></td>
+                        <td>@booking.DateRented.ToShortDateString()</td>
+                        <td>@(booking.DateReturned.HasValue ? ((DateTime)booking.DateReturned).ToShortDateString() : string.Empty) </td>
+                        <td>@booking.Cost</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-@(booking.Status.Equals("Open") ? "success" : "danger disabled") p-1" 
+                            data-bs-toggle="button" aria-pressed="true" @onclick="@(()=>bp.CloseBooking(booking))">
+                                @booking.Status
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div> 
+</div>
+
+ <div class="row">
+     <div class="col-sm-5">
+        <div class="p-0">Customers</div>
+        <table class="table border border-dark table-sm table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">SSN</th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Last Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var customer in bp.GetCustomers())
+                {
+                    <tr>
+                        <th scope="row">@customer.SocialSecurityNumber</th>
+                        <td>@customer.FirstName</td>
+                        <td>@customer.LastName</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+     </div>
+</div>
